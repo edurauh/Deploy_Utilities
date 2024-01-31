@@ -1,0 +1,187 @@
+version: "2.15"
+
+services:
+  db:
+    container_name: db
+    image: ${POSTGRES_IMAGE}
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=94114046
+      - POSTGRES_DB=storage
+    ports:
+      - '12345:5432'
+    expose:
+      - 5432
+
+  pgadmin:
+    image: ${PGADMIN_IMAGE}
+    ports:
+      - "8060:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: petrobras@petrobras.com
+      PGADMIN_DEFAULT_PASSWORD: 123456
+    depends_on:
+      - db
+
+  storage:
+    image: brsiop-storage
+    build:
+      context: ./storage
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=${BASE_JAVA_IMAGE}
+
+    ports:
+      - '8010:8010'
+    depends_on:
+      - db
+      - namingserver
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/storage
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=94114046
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://namingserver:8761/eureka/
+    #      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    expose:
+      - 8010
+
+  namingserver:
+    image: brsiop-namingserver
+    container_name: brsiop-namingserver
+    build:
+      context: ./namingServer
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=${BASE_JAVA_IMAGE}
+    ports:
+      - "8761:8761"
+
+
+  apigateway:
+    image: brsiop-apigateway
+    container_name: brsiop-apigateway
+    build:
+      context: ./apiGateway
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=${BASE_JAVA_IMAGE}
+    ports:
+      - '8000:8000'
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://namingserver:8761/eureka/
+    depends_on:
+      - namingserver
+    expose:
+      - 8000
+
+
+  keycloak:
+    image: ${KEYCLOAK_IMAGE}
+    ports:
+      - "8080:8080"
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+    command: ["start-dev"]
+
+
+  dbservice:
+    container_name: brsiop-dbservice
+    image: brsiop-dbservice
+    build:
+      context: ./DB_Service
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=${BASE_PYTHON_IMAGE}
+    environment:
+      - SERVICE_PORT=8012
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=storage
+      - DB_USER=postgres
+      - DB_PASS=94114046
+      - EUREKA_HOST=namingserver
+      - EUREKA_PORT=8761
+    ports:
+      - '8012:8012'
+    expose:
+      - 8012
+    depends_on:
+      - db
+      - namingserver
+
+  externaldata:
+    container_name: brsiop-exdata
+    image: brsiop-extdata
+    build:
+      context: ./ExternalDataProvider_Service
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=${BASE_PYTHON_IMAGE}
+    ports:
+      - '8016:8016'
+    expose:
+      - 8016
+
+  optimization:
+    container_name: brsiop-optimization
+    image: brsiop-optimization
+    build:
+      context: ./Opt_Service
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=${BASE_PYTHON_IMAGE}
+    ports:
+      - '8014:8014'
+    expose:
+      - 8014
+
+  curvegen:
+    container_name: brsiop-curvegen
+    image: brsiop-curvegen
+    build:
+      context: ./CurveGen_Service
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=${BASE_PYTHON_IMAGE}
+    ports:
+      - '8015:8015'
+    expose:
+      - 8015
+
+  algomanagement:
+    container_name: brsiop-algman
+    image: brsiop-algman
+    build:
+      context: ./Algo_Management
+      dockerfile: Dockerfile
+      args:
+        - BASE_IMAGE=${BASE_PYTHON_IMAGE}
+    environment:
+      - PORT=8011
+      - EUREKA_URL=http://namingserver:8761/eureka
+      - DBSERVICE_URL=http://dbservice:8012
+      - OPTSERVICE_URL=http://optimization:8014
+      - CURVEGENSERVICE_URL=http://curvegen:8015
+      - EXTERNALDATASERVICE_URL=http://externaldata:8016
+      - ALGO_MNGM_SCHEDULE_BACKGROUND_TASKS=true
+    ports:
+      - '8011:8011'
+    expose:
+      - 8011
+    depends_on:
+      - namingserver
+
+  frontend:
+    container_name: brsiop-frontend
+    image: brsiop-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile_uvicorn
+    ports:
+      - "8013:8013"
+    expose:
+      - 8013
+    depends_on:
+      - apigateway

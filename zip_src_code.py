@@ -12,7 +12,7 @@ import zipfile
 
 
 PACKAGING_ROOT = pathlib.Path(__file__).parent.parent.resolve()
-version_name = "1.0.0"
+version_name = "1.0.1"
 zip_filename = f'brsiop2_{version_name}.zip'
 
 
@@ -35,10 +35,8 @@ folders_to_include = [
 
     os.path.join(".", "frontend"),
     # todo: we should pack only what is needed instead of the entire src code
-    # os.path.join(".", "frontend", "dist_dev_local"),
-    # os.path.join(".", "frontend", "dist_dev_ufsc"),
-    # os.path.join(".", "frontend", "dist_homologation"),
-    # os.path.join(".", "frontend", "dist_prod"),
+    os.path.join(".", "frontend", "static_homologation"),
+
 ]
 
 empty_folders_to_include = [
@@ -47,12 +45,16 @@ empty_folders_to_include = [
 
 files_to_include = [
     os.path.join(".", "apiGateway", "target", "apiGateway-0.0.1-SNAPSHOT.jar"),
-    os.path.join(".", "apiGateway", "Dockerfile"),
     os.path.join(".", "storage", "target", "storage-0.0.1-SNAPSHOT.jar"),
-    os.path.join(".", "storage", "Dockerfile"),
-    os.path.join(".", "storage", "docker-compose.yml"),
     os.path.join(".", "namingServer", "target", "namingServer-0.0.1-SNAPSHOT.jar"),
+
+    os.path.join(".", "storage", "docker-compose.yml"),
+    os.path.join(".", "storage", "Dockerfile"),
+    os.path.join(".", "apiGateway", "Dockerfile"),
     os.path.join(".", "namingServer", "Dockerfile"),
+
+    os.path.join(".", "frontend", "serve_frontend.py"),
+    os.path.join(".", "frontend", "requirements.txt")
 ]
 
 folders_to_ignore_everywhere = [

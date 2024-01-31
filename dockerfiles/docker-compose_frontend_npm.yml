@@ -178,7 +178,7 @@ services:
     image: brsiop-frontend
     build:
       context: ./frontend
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_npm
       network: host
       args:
         - BASE_IMAGE=${BASE_NODE_IMAGE}

@@ -21,13 +21,9 @@ VOLUME /app
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm set strict-ssl false
-RUN npm config set proxy http://EYC5:brsiop2024!@inet-sys.petrobras.com.br:804
-RUN npm config set https-proxy http://EYC5:brsiop2024!@inet-sys.petrobras.com.br:804
 RUN npm install
 COPY . .
 RUN npm run build
-RUN npm set strict-ssl true
 
 # Stage 2: Serve the application using Node.js http-server
 FROM ${BASE_IMAGE} as production-stage
@@ -39,14 +35,7 @@ WORKDIR /usr/src/app
 COPY --from=build-stage /app/dist ./dist
 
 # Install http-server globally
-RUN npm set strict-ssl false
-RUN npm config set proxy http://EYC5:brsiop2024!@inet-sys.petrobras.com.br:804
-RUN npm config set https-proxy http://EYC5:brsiop2024!@inet-sys.petrobras.com.br:804
-RUN npm cache clean --force && \
-    npm install -g npm@8.19.2 && \
-    npm install
 RUN npm install -g http-server
-RUN npm set strict-ssl true
 
 # Expose the port you want to use for serving the application
 EXPOSE 8013

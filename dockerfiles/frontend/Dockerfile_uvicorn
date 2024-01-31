@@ -1,0 +1,16 @@
+ARG BASE_IMAGE=${BASE_PYTHON_IMAGE}
+FROM ${BASE_IMAGE}
+
+VOLUME /app
+WORKDIR /app
+
+RUN apt-get update
+
+COPY requirements.txt /app
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+COPY . /app
+
+EXPOSE 8013
+ENTRYPOINT ["python", "serve_frontend.py"]
