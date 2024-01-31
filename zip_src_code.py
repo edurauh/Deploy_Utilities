@@ -22,8 +22,8 @@ folders_to_ignore_from_root = [
 
 folders_to_include = [
     os.path.join(".", "keycloak"),
-    # os.path.join(".", "namingServer"),
 
+    # os.path.join(".", "namingServer"),
     # os.path.join(".", "apiGateway"),
     # os.path.join(".", "storage"),
 
@@ -33,10 +33,9 @@ folders_to_include = [
     os.path.join(".", "ExternalDataProvider_Service"),
     os.path.join(".", "Opt_Service"),
 
-    os.path.join(".", "frontend"),
+    # os.path.join(".", "frontend"),
     # todo: we should pack only what is needed instead of the entire src code
     os.path.join(".", "frontend", "static_homologation"),
-
 ]
 
 empty_folders_to_include = [
@@ -48,10 +47,17 @@ files_to_include = [
     os.path.join(".", "storage", "target", "storage-0.0.1-SNAPSHOT.jar"),
     os.path.join(".", "namingServer", "target", "namingServer-0.0.1-SNAPSHOT.jar"),
 
-    os.path.join(".", "storage", "docker-compose.yml"),
+    os.path.join(".", "docker-compose_frontend_npm.yml"),
+    os.path.join(".", "docker-compose_frontend_static.yml"),
+    os.path.join(".", ".env"),
+    os.path.join(".", "development.env"),
+    os.path.join(".", "homologation.env"),
+
     os.path.join(".", "storage", "Dockerfile"),
     os.path.join(".", "apiGateway", "Dockerfile"),
     os.path.join(".", "namingServer", "Dockerfile"),
+    os.path.join(".", "frontend", "Dockerfile_uvicorn"),
+    os.path.join(".", "frontend", "Dockerfile_npm"),
 
     os.path.join(".", "frontend", "serve_frontend.py"),
     os.path.join(".", "frontend", "requirements.txt")
